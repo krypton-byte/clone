@@ -1,0 +1,49 @@
+#!/data/data/com.termux/files/usr/bin/sh
+B='\033[34;1m'
+G='\033[32;1m'
+P='\033[35;1m'
+C='\033[36;1m'
+R='\033[31;1m'
+D='\033[37;1m'
+Y='\033[33;1m'
+cloner(){
+	auth=$1
+	repo=$2
+	#budayakan menulis program sesuai aturan
+	con="$(curl -s https://github.com/$author/$repo -L -I)"
+	if [ "$(echo $con |grep -ac 'HTTP.*404')" = 1 ]
+	then
+		printf "${R}[${Y}!${R}]${B} file tidak di temukan atau mungkin telah di hapus$D\n"
+	elif [ "$con" = '' ]
+	then
+		printf "${R}[${Y}*${R}]${B} data seluler anda sedang tidak aktif$D\n"
+	elif [ "$(curl -s https://github.com/$auth/$repo -L  -I|grep -ac 'HTTP.*200')" = 1 ]
+	then
+		printf "${R}[${Y}*${R}]${B} file ......."
+		printf "  ${G}ditemukan\n"
+		printf "${R}[${Y}!${R}]${B} downloading .......$D"
+		curl -so $2-master.zip https://codeload.github.com/$auth/$repo/zip/master >/dev/null 2>&1
+		printf  " ${G}sukses$D\n"
+		printf "${R}[${Y}!${R}]${B} extracting ......."
+		unzip -o $2-master.zip >/dev/null 2>&1
+		printf " ${G}sukses$D\n"
+		printf "${R}[${Y}*${R}]${B} hapus cache ......."
+		rm $2-master.zip >/dev/null 2>&1
+		printf " ${G}sukses$D\n"
+		mv -f $2-master $2 >/dev/null 2>&1
+		printf "${R}[${Y}*${R}]${B} sukses$D\n"
+	else
+		printf "${R}[${Y}!${R}]${B} file tidak di temukan atau mungkin telah di hapus$D\n"
+	fi
+}
+ch(){
+	auth=$1
+	repo=$2
+	if [ $auth ] && [ $repo ]
+	then
+		cloner $auth $repo
+	else
+		printf "\$${G}clone ${B}<nama si pembuat> ${Y}<repository>$D\n"
+	fi
+}
+ch $@
